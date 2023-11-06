@@ -137,7 +137,7 @@ func (sf *Server) handleConnect(ctx context.Context, writer io.Writer, request *
 
 	// Start proxying
 	errCh := make(chan error, 2)
-	sf.goFunc(func() { errCh <- sf.Request(target, request.Reader) })
+	sf.goFunc(func() { errCh <- sf.Request(target, request) })
 	sf.goFunc(func() { errCh <- sf.Response(writer, target) })
 	// Wait
 	for i := 0; i < 2; i++ {
@@ -330,7 +330,7 @@ type CloseWriter interface {
 // Proxy is used to suffle data from src to destination, and sends errors
 // down a dedicated channel
 
-func (sf *Server) Request(dst io.Writer, request Request) (error) {
+func (sf *Server) Request(dst io.Writer, request *Request) (error) {
   _, err := io.Copy(dst, request.Reader)
   if tcpconn, ok := dst.(CloseWriter); ok {
     tcpconn.CloseWrite()

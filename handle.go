@@ -9,7 +9,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/things-go/go-socks5/statute"
+	"github.com/ElizarBatin/go-socks5/statute"
 )
 
 // AddressRewriter is used to rewrite a destination transparently
@@ -329,7 +329,7 @@ type closeWriter interface {
 
 // Proxy is used to suffle data from src to destination, and sends errors
 // down a dedicated channel
-func (sf *Server) Proxy(dst io.Writer, src io.Reader) error {
+func defaultProxy(sf *Server, dst io.Writer, src io.Reader) error {
 	buf := sf.bufferPool.Get()
 	defer sf.bufferPool.Put(buf)
 	_, err := io.CopyBuffer(dst, src, buf[:cap(buf)])
@@ -337,4 +337,12 @@ func (sf *Server) Proxy(dst io.Writer, src io.Reader) error {
 		tcpConn.CloseWrite() //nolint: errcheck
 	}
 	return err
+}
+
+func (sf *Server) Proxy(dst io.Writer, src io.Reader) error {
+  if sf.proxy == nil {
+    return defaultProxy(sf, dst, src)
+  }
+
+  return sf.proxy(sf, dst, src)
 }

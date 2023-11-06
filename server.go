@@ -9,8 +9,8 @@ import (
 	"log"
 	"net"
 
-	"github.com/things-go/go-socks5/bufferpool"
-	"github.com/things-go/go-socks5/statute"
+	"github.com/ElizarBatin/go-socks5/bufferpool"
+	"github.com/ElizarBatin/go-socks5/statute"
 )
 
 // GPool is used to implement custom goroutine pool default use goroutine
@@ -54,6 +54,7 @@ type Server struct {
 	userConnectHandle   func(ctx context.Context, writer io.Writer, request *Request) error
 	userBindHandle      func(ctx context.Context, writer io.Writer, request *Request) error
 	userAssociateHandle func(ctx context.Context, writer io.Writer, request *Request) error
+  proxy func(sf *Server, dst io.Writer, src io.Reader) error
 }
 
 // NewServer creates a new Server

@@ -330,7 +330,7 @@ type CloseWriter interface {
 // Proxy is used to suffle data from src to destination, and sends errors
 // down a dedicated channel
 
-func (sf *Server) Request(dst io.Writer, request *Request) (error) {
+func DefaultRequest(dst io.Writer, request *Request) (error) {
   _, err := io.Copy(dst, request.Reader)
   if tcpconn, ok := dst.(CloseWriter); ok {
     tcpconn.CloseWrite()
@@ -338,7 +338,23 @@ func (sf *Server) Request(dst io.Writer, request *Request) (error) {
   return err
 }
 
-func (sf *Server) Response(dst io.Writer, target net.Conn) (error) {
+func DefaultResponse(dst io.Writer, target net.Conn) (error) {
   _, err := io.Copy(dst, target)
   return err
+}
+
+func (sf *Server) HandleRequest(dst io.Writer, request *Request) (error) {
+  if sf.requestHandler != nil {
+    return sf.requestHandler(dst, request)
+  }
+
+  return DefaultRequest(dst, request)
+}
+
+
+func (sf *Server) HandleResponse(dst io.Writer, target net.Conn) (error) {
+  if sf.responseHandler != nil {
+    return sf.responseHandler(dst, target)
+  }
+  return DefaultResponse(dst, target)
 }

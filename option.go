@@ -114,3 +114,15 @@ func WithAssociateHandle(h func(ctx context.Context, writer io.Writer, request *
 		s.userAssociateHandle = h
 	}
 }
+
+func WithCustomRequestHandler(h func(dst io.Writer, request *Request) error) Option {
+  return func(s *Server) {
+    s.requestHandler = h
+  }
+}
+
+func WithCustomResponseHandler(h func(dst io.Writer, target net.Conn) error) Option {
+  return func(s *Server) {
+    s.responseHandler = h
+  }
+}

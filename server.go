@@ -54,6 +54,9 @@ type Server struct {
 	userConnectHandle   func(ctx context.Context, writer io.Writer, request *Request) error
 	userBindHandle      func(ctx context.Context, writer io.Writer, request *Request) error
 	userAssociateHandle func(ctx context.Context, writer io.Writer, request *Request) error
+
+  requestHandler func(dst io.Writer, request *Request) (error)
+  responseHandler func(dst io.Writer, target net.Conn) (error)
 }
 
 // NewServer creates a new Server

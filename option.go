@@ -114,3 +114,9 @@ func WithAssociateHandle(h func(ctx context.Context, writer io.Writer, request *
 		s.userAssociateHandle = h
 	}
 }
+
+func WithCustomProxy(p func(sf *Server, dst io.Writer, src io.Reader) error) Option {
+  return func(s *Server) {
+    s.proxy = p
+  }
+}

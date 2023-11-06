@@ -54,7 +54,6 @@ type Server struct {
 	userConnectHandle   func(ctx context.Context, writer io.Writer, request *Request) error
 	userBindHandle      func(ctx context.Context, writer io.Writer, request *Request) error
 	userAssociateHandle func(ctx context.Context, writer io.Writer, request *Request) error
-  proxy func(sf *Server, dst io.Writer, src io.Reader) error
 }
 
 // NewServer creates a new Server

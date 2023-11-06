@@ -137,8 +137,8 @@ func (sf *Server) handleConnect(ctx context.Context, writer io.Writer, request *
 
 	// Start proxying
 	errCh := make(chan error, 2)
-	sf.goFunc(func() { errCh <- sf.Proxy(target, request.Reader) })
-	sf.goFunc(func() { errCh <- sf.Proxy(writer, target) })
+	sf.goFunc(func() { errCh <- sf.Request(target, request.Reader) })
+	sf.goFunc(func() { errCh <- sf.Response(writer, target) })
 	// Wait
 	for i := 0; i < 2; i++ {
 		e := <-errCh
@@ -323,26 +323,22 @@ func SendReply(w io.Writer, rep uint8, bindAddr net.Addr) error {
 	return err
 }
 
-type closeWriter interface {
+type CloseWriter interface {
 	CloseWrite() error
 }
 
 // Proxy is used to suffle data from src to destination, and sends errors
 // down a dedicated channel
-func DefaultProxy(sf *Server, dst io.Writer, src io.Reader) error {
-	buf := sf.bufferPool.Get()
-	defer sf.bufferPool.Put(buf)
-	_, err := io.CopyBuffer(dst, src, buf[:cap(buf)])
-	if tcpConn, ok := dst.(closeWriter); ok {
-		tcpConn.CloseWrite() //nolint: errcheck
-	}
-	return err
+
+func (sf *Server) Request(dst io.Writer, request Request) (error) {
+  _, err := io.Copy(dst, request.Reader)
+  if tcpconn, ok := dst.(CloseWriter); ok {
+    tcpconn.CloseWrite()
+  }
+  return err
 }
 
-func (sf *Server) Proxy(dst io.Writer, src io.Reader) error {
-  if sf.proxy == nil {
-    return DefaultProxy(sf, dst, src)
-  }
-
-  return sf.proxy(sf, dst, src)
+func (sf *Server) Response(dst io.Writer, target net.Conn) (error) {
+  _, err := io.Copy(dst, target)
+  return err
 }

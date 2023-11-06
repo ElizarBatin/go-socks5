@@ -137,8 +137,8 @@ func (sf *Server) handleConnect(ctx context.Context, writer io.Writer, request *
 
 	// Start proxying
 	errCh := make(chan error, 2)
-	sf.goFunc(func() { errCh <- sf.Request(target, request) })
-	sf.goFunc(func() { errCh <- sf.Response(writer, target) })
+	sf.goFunc(func() { errCh <- sf.HandleRequest(target, request) })
+	sf.goFunc(func() { errCh <- sf.HandleResponse(writer, target) })
 	// Wait
 	for i := 0; i < 2; i++ {
 		e := <-errCh
